@@ -1,0 +1,9 @@
+{
+  "name": "product-catalog",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Central product catalogue (data + re-hosted images) served statically with CORS for the embroidery prototypes.",
+  "scripts": {
+    "build:catalog": "node scripts/build-catalog.mjs"
+  }
+}
