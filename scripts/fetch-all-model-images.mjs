@@ -20,7 +20,11 @@ const ROOT = join(__dirname, "..")
 const IMG_ROOT = join(ROOT, "public", "products")
 const CATALOG_FILE = join(ROOT, "public", "catalog.json")
 
-const IMG_WIDTH = 600
+// Source width for on-model shots. 1200 keeps drawer tiles crisp on large /
+// retina screens; override with IMG_WIDTH=… . Note: downloadImage() skips
+// files that already exist, so bump the width AND clear public/products/**/
+// model-*.webp first to actually re-fetch at the new size.
+const IMG_WIDTH = Number(process.env.IMG_WIDTH) || 1200
 const IMAGE_SERVER = "https://image.spreadshirtmedia.net/image-server/v1"
 const BG = "F4F4F4"
 const VIEWS = [1, 2, 3, 4]
