@@ -148,6 +148,14 @@ async function main() {
     )
     const defaultViewId = detail.views?.[0]?.id ?? "1"
 
+    // Spreadshirt returns legacy print areas flagged `deprecated`; only the
+    // non-deprecated area per view is the current/correct one (matches
+    // create-omat's Imgly.getAreas). Selecting viewMaps[0] blindly would pick a
+    // legacy oversized area (e.g. tee front 308x570 instead of 390x490).
+    const activePrintAreaIds = new Set(
+      (detail.printAreas ?? []).filter(pa => !pa.deprecated).map(pa => pa.id)
+    )
+
     // Per-view metadata: image + the print-area boxes overlaid on that view.
     const viewMeta = {}
     for (const view of detail.views ?? []) {
@@ -160,7 +168,9 @@ async function main() {
           unit: view.size?.unit ?? "mm",
         },
         dpi: view.dpi ?? 0,
-        viewMaps: (view.viewMaps ?? []).map(vm => ({
+        viewMaps: (view.viewMaps ?? [])
+          .filter(vm => activePrintAreaIds.has(vm.printArea?.id))
+          .map(vm => ({
           printAreaId: vm.printArea?.id ?? "",
           offset: {
             x: vm.offset?.x ?? 0,
@@ -207,7 +217,9 @@ async function main() {
 
     const productViews = Object.values(viewMeta)
 
-    const printAreas = (detail.printAreas ?? []).map(pa => ({
+    const printAreas = (detail.printAreas ?? [])
+      .filter(pa => !pa.deprecated)
+      .map(pa => ({
       id: pa.id,
       defaultViewId: pa.defaultView?.id ?? "",
       boundary: {
